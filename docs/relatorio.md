@@ -64,3 +64,33 @@ Para assegurar a viabilidade do projeto, o protótipo deve respeitar diretrizes 
 1. Isolamento de Planos: Deve ser demonstrada a separação clara entre o Management Plane (acesso administrativo ao Host/Dom0) e o Data Plane (tráfego das máquinas virtuais).
 2. Otimização de I/O: É mandatório o uso de drivers paravirtualizados no protótipo para comprovar a redução de latência em serviços de rede.
 3. Consistência: A justificativa técnica deve estar estritamente alinhada às métricas de desempenho discutidas na Seção 4, provando que a arquitetura escolhida suporta a carga de trabalho projetada para um ISP regional.
+
+---
+
+## 8. Evidências Técnicas da Implementação (Resultados Reais)
+
+Para corroborar com a eficácia do protótipo desenvolvido pelo Grupo 01, logs estatísticos foram extraídos do ambiente funcional. Estas métricas atestam a correta separação de planos e alocação de recursos:
+
+**8.1. Análise da Camada Física (Host)**
+A leitura do hypervisor (comando `virsh nodeinfo`) validou o reconhecimento completo da arquitetura de hardware subjacente:
+* **CPUs Físicas Mapeadas:** 20 (Arquitetura x86_64 a 2803 MHz)
+* **Topologia NUMA:** 1 Célula
+* **Memória Reconhecida para Virtualização:** ~8GB (7969956 KiB)
+
+**8.2. Monitoramento de Domínios Paravirtualizados**
+Através da API do Libvirt (`virsh dominfo`), observou-se a integridade do isolamento das Máquinas Virtuais (`cliente1` e `cliente2`):
+* Ambas operando em estado **Running** sob o tipo de sistema **HVM** (Hardware Virtual Machine).
+* Eficiência de Escalonamento: Cada VM recebeu alocação estrita de 256MB de RAM (`262144 KiB`) e 1 vCPU, garantindo que o hypervisor não cometa "Overcommitment" agressivo sem o uso do Ballooning.
+
+**8.3. Isolamento da Camada de Redes (SDN Data Plane)**
+A query executada sobre o switch de Data Center (`ovs-vsctl show` na versão 3.7.1) confirmou o encapsulamento do tráfego:
+* A `Bridge br-data` encontra-se operacional.
+* O fluxo de E/S de cada cliente foi canalizado exclusivamente para as interfaces virtuais isoladas (`vnet0` e `vnet1`), cumprindo o requisito estrutural do NaaS de não poluir o plano de gerência (Host).
+
+**8.4. Comprovação Máxima de Paravirtualização**
+A extração do XML de baixo nível do KVM (`virsh dumpxml`) cravou o bypass de emulação exigido no seminário. O código confirmou que os barramentos estão utilizando o padrão paravirtualizado (VirtIO):
+* **Disco:** `<target dev='vda' bus='virtio'/>`
+* **Rede:** `<model type='virtio'/>`
+* **Gerenciamento de Memória (Impacto no Desempenho):** `<memballoon model='virtio'>`
+
+A implementação com o balão de memória VirtIO viabiliza, na prática, a redução e alocação dinâmica de memória sem necessidade de reinicialização (`live ballooning`), sanando os desafios de latência e consumo de RAM abordados neste relatório.

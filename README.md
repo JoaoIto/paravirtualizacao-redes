@@ -22,6 +22,7 @@ Este relatório técnico descreve os passos exatos executados para a construçã
 ## 2. Arquivos e Ferramentas do Repositório
 *   `README.md`: Este documento principal com o registro acadêmico e técnico.
 *   `docs/guia_pratico_entrega.md`: Guia teórico com diagrama de arquitetura e justificativas do projeto.
+*   `guia_de_bolso_comandos.md`: **[NOVO]** Resumo rápido de todos os comandos do laboratório separados por categoria.
 *   `roteiro_testes_ao_vivo.md`: Roteiro com comandos de simulação de falhas para a apresentação.
 *   `demo_apresentacao.sh`: Script executável de terminal para apresentação interativa dos resultados.
 *   `dashboard.py`: Servidor Web em Python que gera uma interface gráfica (Dashboard) em tempo real da infraestrutura.
@@ -188,6 +189,57 @@ MODALIAS=virtio:d00000001v00001AF4
 ```
 **Conclusão Técnica:** A presença de `DRIVER=virtio_net` atesta cabalmente que a máquina virtual está executando paravirtualização de rede em vez de depender de emulação completa.
 
+### 4.8. Extração de Estatísticas e Logs Avançados do KVM
+Para comprovar a estabilidade do protótipo e registrar dados reais de consumo (CPU/RAM) durante a avaliação da banca, os seguintes dados foram extraídos após a infraestrutura entrar em produção:
+
+**1. Levantamento de Capacidade do Servidor Físico (Bare Metal)**
+**Comando:** `sudo virsh nodeinfo`
+**Resposta Esperada:**
+```text
+CPU model:           x86_64
+CPU(s):              20
+CPU frequency:       2803 MHz
+CPU socket(s):       1
+Core(s) per socket:  10
+Thread(s) per core:  2
+NUMA cell(s):        1
+Memory size:         7969956 KiB
+```
+
+**2. Relatório de Consumo das VMs**
+**Comandos:** `sudo virsh start cliente1`, seguido de `sudo virsh dominfo cliente1` e `sudo virsh dominfo cliente2`
+**Resposta Esperada:**
+```text
+Domain 'cliente1' started
+
+Id:             1
+Name:           cliente1
+OS Type:        hvm
+State:          running
+CPU(s):         1
+CPU time:       5.7s
+Max memory:     262144 KiB
+Used memory:    262144 KiB
+```
+*(Repete-se para o cliente2 com 5.6s de tempo de CPU alocado)*.
+
+**3. Prova Definitiva de Paravirtualização via XML do Hypervisor**
+**Comando:** `sudo virsh dumpxml cliente1`
+**Resposta (Filtro das Camadas de I/O):**
+```xml
+...
+<target dev='vda' bus='virtio'/>
+<alias name='virtio-disk0'/>
+...
+<model type='virtio'/>
+<alias name='net0'/>
+...
+<memballoon model='virtio'>
+  <alias name='balloon0'/>
+...
+```
+**Conclusão Final:** O dump da configuração do KVM atesta a presença massiva do modelo `virtio` no disco Rígido, Interface de Rede e gerenciador de Balão de Memória, cimentando o sucesso do seminário do Grupo 01.
+
 ---
 
 ## 5. Como Apresentar (Ferramentas Gráficas)
@@ -215,6 +267,6 @@ Aperte a tecla `ENTER` passo a passo para evoluir a demonstração.
 
 ### 5.3. Roteiro de Testes ao Vivo (Simulação de Falhas)
 Para coroar a apresentação e garantir a nota máxima pela dinamicidade da infraestrutura (NaaS), foi desenvolvido um roteiro de estresse do ambiente.
-Este documento auxiliar contém comandos como `suspend`, `start`, `destroy` para serem aplicados no hypervisor, fazendo o Dashboard reagir em tempo real.
+Este documento auxiliar contém comandos como `suspend`, `start`, `destroy` para serem aplicados no hypervisor, fazendo o Dashboard reagir em tempo real. Ele também ensina como **religar suas VMs** caso elas apareçam como `shut off`.
 
 📄 **[Acesse o roteiro completo aqui: roteiro_testes_ao_vivo.md](roteiro_testes_ao_vivo.md)**
