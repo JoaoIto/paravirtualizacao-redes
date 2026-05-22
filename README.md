@@ -9,7 +9,10 @@
 2. [Arquivos e Ferramentas do Repositório](#2-arquivos-e-ferramentas-do-repositório)
 3. [Ambiente de Execução](#3-ambiente-de-execução)
 4. [Memorial Descritivo de Comandos e Respostas](#4-memorial-descritivo-de-comandos-e-respostas)
-5. [Como Apresentar (Ferramentas Gráficas)](#5-como-apresentar-ferramentas-gráficas)
+5. [Como Apresentar (Ferramentas Gráficas e Testes)](#5-como-apresentar-ferramentas-gráficas)
+    - [5.1. Dashboard Web Interativo](#51-dashboard-web-interativo-opcional-porém-impressionante)
+    - [5.2. Script Interativo de Terminal](#52-script-interativo-de-terminal)
+    - [5.3. Roteiro de Testes ao Vivo](#53-roteiro-de-testes-ao-vivo-simulação-de-falhas)
 
 ---
 
@@ -19,6 +22,7 @@ Este relatório técnico descreve os passos exatos executados para a construçã
 ## 2. Arquivos e Ferramentas do Repositório
 *   `README.md`: Este documento principal com o registro acadêmico e técnico.
 *   `docs/guia_pratico_entrega.md`: Guia teórico com diagrama de arquitetura e justificativas do projeto.
+*   `roteiro_testes_ao_vivo.md`: Roteiro com comandos de simulação de falhas para a apresentação.
 *   `demo_apresentacao.sh`: Script executável de terminal para apresentação interativa dos resultados.
 *   `dashboard.py`: Servidor Web em Python que gera uma interface gráfica (Dashboard) em tempo real da infraestrutura.
 
@@ -208,3 +212,9 @@ chmod +x demo_apresentacao.sh
 ./demo_apresentacao.sh
 ```
 Aperte a tecla `ENTER` passo a passo para evoluir a demonstração.
+
+### 5.3. Roteiro de Testes ao Vivo (Simulação de Falhas)
+Para coroar a apresentação e garantir a nota máxima pela dinamicidade da infraestrutura (NaaS), foi desenvolvido um roteiro de estresse do ambiente.
+Este documento auxiliar contém comandos como `suspend`, `start`, `destroy` para serem aplicados no hypervisor, fazendo o Dashboard reagir em tempo real.
+
+📄 **[Acesse o roteiro completo aqui: roteiro_testes_ao_vivo.md](roteiro_testes_ao_vivo.md)**
